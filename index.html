@@ -748,6 +748,10 @@
             text-align: center;
         }
 
+        .agent-hidden {
+            display: none !important;
+        }
+
         .book-btn {
             display: flex;
             align-items: center;
@@ -1142,7 +1146,7 @@
                 <div class="pricing-card">
                     <span class="pricing-badge">Базовый</span>
                     <h3>JetSurf Experience</h3>
-                    <div class="pricing-price">$150<span>за 1 человека</span></div>
+                    <div class="pricing-price" id="price-basic">$150<span>за 1 человека</span></div>
                     <ul class="pricing-list">
                         <li>1 час катания на джетсёрфе</li>
                         <li>Фотосессия на берегу с доской</li>
@@ -1152,7 +1156,7 @@
                         <li>Связь с инструктором через водонепроницаемый интерком BBTalkin</li>
                         <li>Вся экипировка включена</li>
                     </ul>
-                    <a href="https://t.me/Vietnam_Translator" target="_blank" class="pricing-book-btn">
+                    <a href="https://t.me/Vietnam_Translator" target="_blank" class="pricing-book-btn" id="book-btn-basic">
                         📩 Забронировать
                     </a>
                 </div>
@@ -1161,14 +1165,14 @@
                 <div class="pricing-card premium">
                     <span class="pricing-badge">Премиум</span>
                     <h3>JetSurf + Pro видео</h3>
-                    <div class="pricing-price">$210<span>за 1 человека</span></div>
+                    <div class="pricing-price" id="price-premium">$210<span>за 1 человека</span></div>
                     <ul class="pricing-list">
                         <li>Всё из пакета «Базовый»</li>
                         <li class="bonus">Персональный оператор дрона</li>
                         <li class="bonus">Профессиональный монтаж ролика</li>
                         <li class="bonus">4K видео для Instagram и TikTok</li>
                     </ul>
-                    <a href="https://t.me/Vietnam_Translator" target="_blank" class="pricing-book-btn">
+                    <a href="https://t.me/Vietnam_Translator" target="_blank" class="pricing-book-btn" id="book-btn-premium">
                         📩 Забронировать
                     </a>
                 </div>
@@ -1178,7 +1182,7 @@
 
 
             <div class="pricing-note">
-                <a href="https://t.me/nhung_translator_danang_reviews" target="_blank" class="reviews-inline-link">
+                <a href="https://t.me/nhung_translator_danang_reviews" target="_blank" class="reviews-inline-link" id="reviews-inline">
                     <span>⭐</span>
                     <span>Читайте отзывы наших клиентов в Telegram</span>
                     <span class="reviews-arrow">→</span>
@@ -1216,13 +1220,13 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>Эмоции, скорость и эпичные кадры — всё это JetSurf в Дананге</p>
-            <p style="margin-top: 10px; opacity: 0.8;">Ньунг - Переводчик · Гид · Визы | Вьетнамский | Русский | Английский</p>
-            <a href="https://t.me/Vietnam_Translator" target="_blank" class="book-btn book-btn-footer">
+            <p id="footer-slogan">Эмоции, скорость и эпичные кадры — всё это JetSurf в Дананге</p>
+            <p style="margin-top: 10px; opacity: 0.8;" id="footer-nhung">Ньунг - Переводчик · Гид · Визы | Вьетнамский | Русский | Английский</p>
+            <a href="https://t.me/Vietnam_Translator" target="_blank" class="book-btn book-btn-footer" id="book-btn-footer">
                 <span>📩</span>
                 <span>Забронировать</span>
             </a>
-            <a href="https://t.me/nhung_translator_danang_reviews" target="_blank" class="reviews-btn">
+            <a href="https://t.me/nhung_translator_danang_reviews" target="_blank" class="reviews-btn" id="reviews-footer">
                 <span>💬</span>
                 <span>Читать отзывы клиентов</span>
                 <span class="reviews-platform">Telegram</span>
@@ -1230,6 +1234,37 @@
         </div>
     </div>
     <script>
+        // Агентский режим: ?m=X (наценка $/чел), ?mt=X (наценка $/группа)
+        const urlParams = new URLSearchParams(window.location.search);
+        const agentMarkupPerPerson = parseFloat(urlParams.get('m')) || 0;
+        const agentMarkupTotal = parseFloat(urlParams.get('mt')) || 0;
+        const isAgentMode = urlParams.has('m') || urlParams.has('mt');
+
+        if (isAgentMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                ['book-btn-basic', 'book-btn-premium', 'reviews-inline', 'footer-nhung', 'book-btn-footer', 'reviews-footer'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('agent-hidden');
+                });
+
+                // Наценка на цены (m= на человека, mt= на группу распределяется поровну)
+                const markup = agentMarkupPerPerson + agentMarkupTotal;
+                if (markup > 0) {
+                    const basicEl = document.getElementById('price-basic');
+                    const premiumEl = document.getElementById('price-premium');
+                    if (basicEl) basicEl.innerHTML = '$' + (150 + markup) + '<span>за 1 человека</span>';
+                    if (premiumEl) premiumEl.innerHTML = '$' + (210 + markup) + '<span>за 1 человека</span>';
+                }
+
+                document.querySelectorAll('.tour-nav-btn[href]').forEach(link => {
+                    const url = new URL(link.href);
+                    if (urlParams.has('m')) url.searchParams.set('m', urlParams.get('m'));
+                    if (urlParams.has('mt')) url.searchParams.set('mt', urlParams.get('mt'));
+                    link.href = url.toString();
+                });
+            });
+        }
+
         function toggleSound() {
             const video = document.getElementById('hero-video');
             const btn = document.getElementById('sound-toggle');
