@@ -1234,11 +1234,11 @@
         </div>
     </div>
     <script>
-        // Агентский режим: ?m=X (наценка $/чел), ?mt=X (наценка $/группа)
+        // Агентский режим: ?m=X ($/чел), ?mt=X ($/группа), ?f=X (питание $/чел)
         const urlParams = new URLSearchParams(window.location.search);
         const agentMarkupPerPerson = parseFloat(urlParams.get('m')) || 0;
         const agentMarkupTotal = parseFloat(urlParams.get('mt')) || 0;
-        const isAgentMode = urlParams.has('m') || urlParams.has('mt');
+        const isAgentMode = urlParams.has('m') || urlParams.has('mt') || urlParams.has('f');
 
         if (isAgentMode) {
             document.addEventListener('DOMContentLoaded', () => {
@@ -1260,6 +1260,7 @@
                     const url = new URL(link.href);
                     if (urlParams.has('m')) url.searchParams.set('m', urlParams.get('m'));
                     if (urlParams.has('mt')) url.searchParams.set('mt', urlParams.get('mt'));
+                    if (urlParams.has('f')) url.searchParams.set('f', urlParams.get('f'));
                     link.href = url.toString();
                 });
             });
