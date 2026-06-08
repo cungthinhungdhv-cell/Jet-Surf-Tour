@@ -1,0 +1,57 @@
+{
+  "tourId": "tour_jetsurf",
+  "transport": {
+    "car4": "0",
+    "car7": "0",
+    "car16": "0"
+  },
+  "profit": {
+    "adultPercent": "0",
+    "adultVnd": "0",
+    "child1Percent": "0",
+    "child1Vnd": "0",
+    "child2Percent": "0",
+    "child2Vnd": "0",
+    "minProfit1Person": "0",
+    "minProfit2People": "0",
+    "minProfit3Plus": "0",
+    "partnerDiscountPercent": "0"
+  },
+  "staff": [],
+  "tickets": [
+    {
+      "name": "JetSurf Experience (1 час, базовый, ≈$150 @26313)",
+      "adultPrice": "3946950",
+      "child1Price": "0",
+      "child2Price": "0",
+      "upgrade": {
+        "enabled": false,
+        "price": "1578780",
+        "description": "Премиум +$60: Pro-видео 4K + персональный оператор дрона"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "1 человек",
+      "adults": "1",
+      "children1": "0",
+      "children2": "0"
+    },
+    {
+      "name": "2 человека",
+      "adults": "2",
+      "children1": "0",
+      "children2": "0"
+    },
+    {
+      "name": "Группа 4",
+      "adults": "4",
+      "children1": "0",
+      "children2": "0"
+    }
+  ],
+  "scenarioCounter": 3,
+  "ticketCounter": 1,
+  "staffCounter": 0
+}
