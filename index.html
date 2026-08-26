@@ -1268,6 +1268,64 @@
             });
         }
 
+        // === Цены пакетов с сервера (источник правды — админка iTripster) ===
+        // В разметке стоят последние известные цены: если сеть не ответит,
+        // клиент увидит их, а не пустое место.
+        const TOUR_ID = 'jetsurf';
+        const PRICE_API = 'https://cham.itripster.com/api/public/price/' + TOUR_ID;
+        const PRICE_TIMEOUT_MS = 5000;
+        const PRICE_RETRY_DELAYS = [500, 1500];   // 3 попытки: сразу, +0.5 с, +1.5 с
+
+        /** GET с повторами: на мобильной сети первая попытка часто не доходит. */
+        async function fetchJson(url) {
+            for (let attempt = 0; ; attempt++) {
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), PRICE_TIMEOUT_MS);
+                try {
+                    const r = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+                    if (!r.ok) {
+                        // 4xx повторять бессмысленно
+                        if (r.status >= 400 && r.status < 500 &&
+                            r.status !== 408 && r.status !== 429) return null;
+                        throw new Error('http ' + r.status);
+                    }
+                    return await r.json();
+                } catch (e) {
+                    if (attempt >= PRICE_RETRY_DELAYS.length) return null;
+                    await new Promise(res => setTimeout(res, PRICE_RETRY_DELAYS[attempt]));
+                } finally {
+                    clearTimeout(t);
+                }
+            }
+        }
+
+        /** Витринный доллар: округляем до пятёрки, чтобы курс не дёргал ценник. */
+        function toUsdLabel(vnd, rate) {
+            return '$' + (Math.round(vnd / rate / 5) * 5);
+        }
+
+        async function refreshPackagePrices() {
+            const [basic, premium, fx] = await Promise.all([
+                fetchJson(PRICE_API + '?adults=1'),
+                fetchJson(PRICE_API + '?adults=1&upgrades=1'),
+                fetchJson('https://open.er-api.com/v6/latest/USD'),
+            ]);
+            const rate = fx && fx.rates && fx.rates.VND;
+            if (!rate) return;               // без курса ценник не трогаем
+            const set = (id, data) => {
+                if (!data || !data.totalPrice) return;
+                const el = document.getElementById(id);
+                if (!el) return;
+                const note = el.querySelector('span');   // «за 1 человека»
+                el.textContent = toUsdLabel(data.totalPrice, rate);
+                if (note) el.appendChild(note);
+            };
+            set('price-basic', basic);
+            set('price-premium', premium);
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshPackagePrices);
+
         function toggleSound() {
             const video = document.getElementById('hero-video');
             const btn = document.getElementById('sound-toggle');
